@@ -1,0 +1,25 @@
+{{- define "mapproxy-chart.mapproxy-seed-container" }}
+        - name: mapproxy-seed
+          image: {{ .cloudProviderDockerRegistryUrl }}{{ .Values.mapproxy.image.repository }}:{{ .Values.mapproxy.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }} 
+          env:
+            {{- if .Values.rasterCommon.ca.secretName }}
+            - name: REQUESTS_CA_BUNDLE
+              value: {{ printf "%s/%s" .Values.rasterCommon.ca.path .Values.rasterCommon.ca.key | quote }}
+            - name: NODE_EXTRA_CA_CERTS
+              value: {{ printf "%s/%s" .Values.rasterCommon.ca.path .Values.rasterCommon.ca.key | quote }}
+            {{- end }}
+          {{- if .resources.enabled }}
+          resources:
+            {{- toYaml .resources.value | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          - mountPath: /mapproxy/mapproxy.yaml
+            name: mapproxy-config
+            subPath: mapproxy.yaml
+          {{- if .Values.rasterCommon.storage.fs.internalPvc.enabled}}
+          - mountPath: /layerSources
+            name: sources-storage
+            subPath: {{ .Values.rasterCommon.storage.fs.internalPvc.tilesSubPath }}
+          {{- end }}
+{{- end }}

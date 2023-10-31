@@ -1,0 +1,67 @@
+{{- define "mapproxy-chart.mapproxy-bundle" }}
+  {{- $cloudProviderDockerRegistryUrl := include "mapproxy.cloudProviderDockerRegistryUrl" . -}}
+  {{- $cloudProviderImagePullSecretName := include "mapproxy.cloudProviderImagePullSecretName" . -}}
+  {{- $postgresSecretName := ternary .Values.rasterCommon.db.secrets.externalSecretName (printf "%s%s" .Release.Name "-postgres-secret") .Values.rasterCommon.db.secrets.useExternal }}
+  replicas: {{ .replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .chartName }}
+      release: {{ .releaseName }}
+      run: {{ .releaseName }}-{{ .chartName }}
+      app.kubernetes.io/name: {{ include "mapproxy.name" . }}
+      app.kubernetes.io/instance: {{ .releaseName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .chartName }}
+        release: {{ .releaseName }}
+        run: {{ .releaseName }}-{{ .chartName }}
+        app.kubernetes.io/name: {{ include "mapproxy.name" . }}
+        app.kubernetes.io/instance: {{ .releaseName }}
+    spec:
+    {{- if $cloudProviderImagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ $cloudProviderImagePullSecretName | quote }}
+    {{- end }}
+      initContainers:
+        ######################################################### Init Container Deployment #########################################################
+        {{- template "mapproxy-chart.init-container" (merge (dict "releaseName" .releaseName "chartName" .chartName "cloudProviderDockerRegistryUrl" $cloudProviderDockerRegistryUrl  "postgresSecretName" $postgresSecretName) .)}}
+      containers:
+        ######################################################### MapProxy-Seed Deployment #########################################################
+        {{- template "mapproxy-chart.mapproxy-seed-container" (merge (dict "releaseName" .releaseName "chartName" .chartName "cloudProviderDockerRegistryUrl" $cloudProviderDockerRegistryUrl "resources" .resources) .) }}
+        ######################################################### Mapproxinator Deployment #########################################################
+        {{- template "mapproxy-chart.mapproxinator-container" (merge (dict "releaseName" .releaseName "chartName" .chartName "cloudProviderDockerRegistryUrl" $cloudProviderDockerRegistryUrl  "postgresSecretName" $postgresSecretName) .) }}
+      volumes:
+        - name: mapproxy-config
+          emptyDir: {}
+        {{- if .Values.rasterCommon.db.sslEnabled }}
+        - name: ca-file
+          secret:
+            secretName: {{ $postgresSecretName }}
+            items:
+              - key: caFile
+                path: ca.pem
+        - name: key-file
+          secret:
+            secretName: {{ $postgresSecretName }}
+            items:
+              - key: keyFile
+                path: key.pem
+        - name: cert-file
+          secret:
+            secretName: {{ $postgresSecretName }}
+            items:
+              - key: certFile
+                path: cert.pem
+        {{- end }}
+        {{- if .Values.rasterCommon.ca.secretName }}
+        - name: root-ca
+          secret:
+            secretName: {{.Values.rasterCommon.ca.secretName }}
+        {{- end }}
+        {{- if .Values.rasterCommon.storage.fs.internalPvc.enabled }}
+        - name: sources-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.rasterCommon.storage.fs.internalPvc.name }}
+        {{- end }}        
+{{- end }}
