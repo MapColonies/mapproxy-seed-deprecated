@@ -1,6 +1,6 @@
 apiVersion: v2
-name: mapproxy-seed
-description: A Helm chart for mapproxy seed service
+name: raster-mapproxy-seed
+description: A Helm chart for mapproxy seed util
 type: application
 version: 1.0.0
 appVersion: 1.0.0

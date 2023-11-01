@@ -73,7 +73,7 @@ initContainer:
     repository: mapproxinator
     tag: "latest"
   env:
-    logLevel: warn
+    logLevel: info
     ssl:
       CA_DIR: /opt/certs/ca/
       KEY_DIR: /opt/certs/key/
