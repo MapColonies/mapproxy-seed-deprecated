@@ -1,0 +1,22 @@
+{{- if .Values.enabled -}}
+
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "mapproxy-seed.name" . -}}
+{{- $replicaCount := .Values.replicaCount }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $releaseName }}-deployment
+  annotations:
+    collectord.io/index: {{ quote .Values.splunkIndex }}
+    collectord.io/output: splunk
+  labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    environment: {{ include "mapproxy-seed.environment" . }}
+    release: {{ $releaseName }}
+    {{- include "mapproxy-seed.labels" . | nindent 4 }}
+spec:
+  {{- template "mapproxy-seed-chart.mapproxy-bundle" (merge (dict "releaseName" $releaseName "chartName" $chartName "replicaCount" $replicaCount "resources" .Values.resources) .)}}
+{{- end -}}
