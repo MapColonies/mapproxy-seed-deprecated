@@ -1,5 +1,5 @@
 {{- if .Values.mapproxinator.enabled -}}
-{{- $chartName := include "mapproxy.name" . -}}
+{{- $chartName := include "mapproxy-seed.name" . -}}
 {{- $releaseName := .Release.Name -}}
 apiVersion: v1
 kind: ConfigMap

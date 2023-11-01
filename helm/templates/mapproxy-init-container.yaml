@@ -1,4 +1,4 @@
-{{- define "mapproxy-chart.init-container" }}
+{{- define "mapproxy-seed-chart.init-container" }}
         - name: init-mapproxy
           image: {{ .cloudProviderDockerRegistryUrl }}{{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
@@ -73,7 +73,7 @@
             {{- end }}
           ports:
           - name: http
-            containerPort: {{ .Values.mapproxy.targetPort }}
+            containerPort: {{ .Values.initContainer.targetPort }}
             protocol: TCP
           {{- if .Values.initContainer.resources.enabled }}
           resources:

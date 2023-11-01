@@ -1,8 +1,8 @@
-{{- if .Values.mapproxy.enabled -}}
+{{- if .Values.enabled -}}
 
 {{- $releaseName := .Release.Name -}}
-{{- $chartName := include "mapproxy.name" . -}}
-{{- $replicaCount := .Values.mapproxy.replicaCount }}
+{{- $chartName := include "mapproxy-seed.name" . -}}
+{{- $replicaCount := .Values.replicaCount }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -14,9 +14,9 @@ metadata:
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
-    environment: {{ include "mapproxy.environment" . }}
+    environment: {{ include "mapproxy-seed.environment" . }}
     release: {{ $releaseName }}
-    {{- include "mapproxy.labels" . | nindent 4 }}
+    {{- include "mapproxy-seed.labels" . | nindent 4 }}
 spec:
-  {{- template "mapproxy-chart.mapproxy-bundle" (merge (dict "releaseName" $releaseName "chartName" $chartName "replicaCount" $replicaCount "resources" .Values.mapproxy.resources) .)}}
+  {{- template "mapproxy-seed-chart.mapproxy-bundle" (merge (dict "releaseName" $releaseName "chartName" $chartName "replicaCount" $replicaCount "resources" .Values.resources) .)}}
 {{- end -}}

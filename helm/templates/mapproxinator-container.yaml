@@ -1,4 +1,4 @@
-{{- define "mapproxy-chart.mapproxinator-container" }}
+{{- define "mapproxy-seed-chart.mapproxinator-container" }}
         - name: mapproxinator
           image: {{ .cloudProviderDockerRegistryUrl }}{{ .Values.mapproxinator.image.repository }}:{{ .Values.mapproxinator.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}

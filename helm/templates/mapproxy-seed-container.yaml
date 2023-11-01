@@ -1,6 +1,6 @@
-{{- define "mapproxy-chart.mapproxy-seed-container" }}
+{{- define "mapproxy-seed-chart.mapproxy-seed-container" }}
         - name: mapproxy-seed
-          image: {{ .cloudProviderDockerRegistryUrl }}{{ .Values.mapproxy.image.repository }}:{{ .Values.mapproxy.image.tag }}
+          image: {{ .cloudProviderDockerRegistryUrl }}{{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }} 
           env:
             {{- if .Values.rasterCommon.ca.secretName }}
